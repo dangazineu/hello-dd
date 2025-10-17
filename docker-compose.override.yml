@@ -1,0 +1,97 @@
+# Development overrides for docker-compose
+# This file is automatically loaded by docker-compose and overrides settings in docker-compose.yml
+# Use for development-specific configurations
+
+version: '3.8'
+
+services:
+  # PostgreSQL with development settings
+  postgres:
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust  # Less strict auth for development
+      POSTGRES_LOG_STATEMENT: all        # Log all SQL statements
+    ports:
+      - "5432:5432"  # Expose for local development tools
+
+  # Redis with development settings
+  redis:
+    command: redis-server --appendonly yes --appendfsync everysec --loglevel verbose
+    ports:
+      - "6379:6379"  # Expose for local development tools
+
+  # Development Tools - Adminer for PostgreSQL management
+  adminer:
+    image: adminer:latest
+    container_name: hello-dd-adminer
+    profiles:
+      - dev-tools
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - hello-dd-network
+    restart: unless-stopped
+
+  # Development Tools - Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hello-dd-redis-commander
+    profiles:
+      - dev-tools
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
+      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - hello-dd-network
+    restart: unless-stopped
+
+  # When services are uncommented, add development overrides here:
+
+  # api-gateway:
+  #   build:
+  #     target: development  # Use development stage if multi-stage build
+  #   volumes:
+  #     - ./api-gateway:/app  # Mount source code for hot reload
+  #   environment:
+  #     FLASK_ENV: development
+  #     FLASK_DEBUG: 1
+  #     LOG_LEVEL: DEBUG
+
+  # inventory-service:
+  #   build:
+  #     target: development
+  #   volumes:
+  #     - ./inventory-service:/app
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: docker,dev
+  #     SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+  #     SPRING_JPA_SHOW_SQL: "true"
+  #     LOG_LEVEL: DEBUG
+
+  # pricing-service:
+  #   build:
+  #     target: development
+  #   volumes:
+  #     - ./pricing-service:/app
+  #   environment:
+  #     GIN_MODE: debug
+  #     LOG_LEVEL: DEBUG
+
+# Additional development volumes if needed
+volumes:
+  # Development cache volumes for faster rebuilds
+  maven_cache:
+    driver: local
+  pip_cache:
+    driver: local
+  go_cache:
+    driver: local
