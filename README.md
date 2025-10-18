@@ -287,7 +287,7 @@ docker-compose up
 
 # Run individual services for development
 make run-gateway    # Start API Gateway
-make run-inventory  # Start Inventory Service  
+make run-inventory  # Start Inventory Service
 make run-pricing    # Start Pricing Service
 
 # Run load tests
@@ -296,6 +296,33 @@ make load-test
 # View logs
 docker-compose logs -f [service-name]
 ```
+
+### Kubernetes/EKS Deployment
+
+For deploying to AWS EKS, see the comprehensive setup guides:
+
+- **Quick Start:** [docs/QUICK_START_EKS.md](docs/QUICK_START_EKS.md) - Fast track to get your cluster running
+- **Full Guide:** [docs/EKS_SETUP_GUIDE.md](docs/EKS_SETUP_GUIDE.md) - Detailed instructions and troubleshooting
+
+**Automated setup scripts:**
+```bash
+# Create EKS cluster (15-20 minutes)
+./scripts/create-eks-cluster.sh
+
+# Verify cluster health
+./scripts/verify-eks-cluster.sh
+
+# Deploy services (coming soon)
+kubectl apply -f k8s/
+```
+
+**Prerequisites for EKS:**
+- AWS CLI configured with credentials
+- eksctl installed
+- kubectl installed
+- AWS account with appropriate permissions
+
+See [docs/QUICK_START_EKS.md](docs/QUICK_START_EKS.md) for step-by-step tool installation instructions.
 
 ## Notes
 
