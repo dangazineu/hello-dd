@@ -303,16 +303,20 @@ For deploying to AWS EKS, see the comprehensive setup guides:
 
 - **Quick Start:** [docs/QUICK_START_EKS.md](docs/QUICK_START_EKS.md) - Fast track to get your cluster running
 - **Full Guide:** [docs/EKS_SETUP_GUIDE.md](docs/EKS_SETUP_GUIDE.md) - Detailed instructions and troubleshooting
+- **ECR Setup:** [docs/ECR_SETUP_GUIDE.md](docs/ECR_SETUP_GUIDE.md) - Push Docker images to Amazon ECR
 
 **Automated setup scripts:**
 ```bash
-# Create EKS cluster (15-20 minutes)
+# 1. Create EKS cluster (15-20 minutes)
 ./scripts/create-eks-cluster.sh
 
-# Verify cluster health
+# 2. Verify cluster health
 ./scripts/verify-eks-cluster.sh
 
-# Deploy services (coming soon)
+# 3. Build and push Docker images to ECR
+./scripts/push-to-ecr.sh
+
+# 4. Deploy services (coming soon)
 kubectl apply -f k8s/
 ```
 
@@ -320,6 +324,7 @@ kubectl apply -f k8s/
 - AWS CLI configured with credentials
 - eksctl installed
 - kubectl installed
+- Docker installed (for building images)
 - AWS account with appropriate permissions
 
 See [docs/QUICK_START_EKS.md](docs/QUICK_START_EKS.md) for step-by-step tool installation instructions.
