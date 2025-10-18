@@ -50,6 +50,33 @@ Cluster verification and health check script.
 
 ---
 
+### EKS Deployment (Issue #56)
+
+#### `deploy-to-eks.sh`
+Automated Kubernetes deployment to EKS.
+
+**Usage:**
+```bash
+./scripts/deploy-to-eks.sh
+```
+
+**What it does:**
+- Validates kubectl configuration
+- Deploys Kubernetes manifests to EKS
+- Waits for pods to be ready
+- Waits for LoadBalancer provisioning
+- Tests deployment endpoints
+- Displays service URLs and useful commands
+
+**Prerequisites:**
+- EKS cluster running
+- kubectl configured with cluster access
+- Kubernetes manifests in k8s/ directory
+
+**Time:** ~5-10 minutes (includes LoadBalancer provisioning)
+
+---
+
 ### ECR Image Management (Issue #55)
 
 #### `push-to-ecr.sh`
@@ -128,9 +155,15 @@ For first-time setup, follow this sequence:
    ./scripts/push-to-ecr.sh
    ```
 
-7. **Deploy services:**
+7. **Deploy services to EKS:**
    ```bash
-   kubectl apply -f k8s/
+   ./scripts/deploy-to-eks.sh
+   ```
+
+8. **Get service URL and test:**
+   ```bash
+   kubectl get service api-gateway
+   curl http://<loadbalancer-url>/health
    ```
 
 ## Script Features
