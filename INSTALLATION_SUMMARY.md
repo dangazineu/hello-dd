@@ -169,19 +169,42 @@ kubectl version --client
 
 ### Phase 2: AWS Configuration
 
-#### Step 4: Obtain AWS Credentials
+#### Step 4: Create IAM User and Obtain AWS Credentials
+
+**If you don't have an IAM user yet:**
 
 1. Log into AWS Console: https://console.aws.amazon.com
-2. Navigate to: **IAM** → **Users** → **[Your Username]**
-3. Click on the **"Security Credentials"** tab
+2. Navigate to: **IAM** → **Users**
+3. Click **"Create user"**
+4. Enter a username (e.g., "eks-admin" or your name)
+5. Click **"Next"**
+6. Select **"Attach policies directly"**
+7. Search for and select **"AdministratorAccess"** (or see custom policy below)
+8. Click **"Next"** then **"Create user"**
+
+**Required Permissions (Custom Policy Alternative):**
+
+If you don't want to use AdministratorAccess, create a custom policy with these permissions:
+- **EKS**: Full access (`AmazonEKSClusterPolicy`, `AmazonEKSServicePolicy`)
+- **EC2**: Full access (for nodes and networking)
+- **CloudFormation**: Full access (eksctl uses this)
+- **IAM**: CreateRole, AttachRolePolicy, CreatePolicy (for service roles)
+- **Systems Manager**: Read access (for managed nodes)
+
+**Create Access Keys:**
+
+1. In **IAM** → **Users**, click on your username
+2. Click on the **"Security Credentials"** tab
+3. Scroll down to **"Access keys"**
 4. Click **"Create access key"**
 5. Select use case: **"Command Line Interface (CLI)"**
 6. Acknowledge the warning and click **"Next"**
-7. (Optional) Add a description tag
+7. (Optional) Add a description tag like "EKS cluster management"
 8. Click **"Create access key"**
 9. **IMPORTANT:** Download the CSV file or copy both:
    - Access Key ID
    - Secret Access Key
+10. Store these credentials securely - you won't be able to see the secret key again!
 
 ---
 
@@ -219,15 +242,7 @@ If you see this, you're good to go!
 
 ### Phase 3: Cluster Creation
 
-#### Step 6: Navigate to Project Directory
-
-```bash
-cd /home/dgazineu/dev/workspace/datadog/hello-dd
-```
-
----
-
-#### Step 7: Run Cluster Creation Script
+#### Step 6: Run Cluster Creation Script
 
 ```bash
 ./scripts/create-eks-cluster.sh
@@ -266,7 +281,7 @@ cd /home/dgazineu/dev/workspace/datadog/hello-dd
 
 ---
 
-#### Step 8: Verify Cluster
+#### Step 7: Verify Cluster
 
 ```bash
 ./scripts/verify-eks-cluster.sh
