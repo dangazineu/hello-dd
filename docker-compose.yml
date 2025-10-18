@@ -79,6 +79,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      inventory-service:
+        condition: service_healthy
     healthcheck:
       <<: *healthcheck-defaults
       test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health')"]
@@ -87,32 +89,26 @@ services:
     restart: unless-stopped
 
   # Inventory Service (Java/Spring Boot)
-  # Uncomment when service is implemented
-  # inventory-service:
-  #   build:
-  #     context: ./inventory-service
-  #     dockerfile: Dockerfile
-  #   container_name: hello-dd-inventory-service
-  #   environment:
-  #     <<: *common-env-vars
-  #     DD_SERVICE: inventory-service
-  #     SERVICE_PORT: ${INVENTORY_SERVICE_PORT:-8001}
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-inventory}
-  #     SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-  #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-  #     SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-  #     SPRING_PROFILES_ACTIVE: docker
-  #   ports:
-  #     - "${INVENTORY_SERVICE_PORT:-8001}:8001"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     <<: *healthcheck-defaults
-  #     test: ["CMD", "curl", "-f", "http://localhost:8001/actuator/health"]
-  #   networks:
-  #     - hello-dd-network
-  #   restart: unless-stopped
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: hello-dd-inventory-service
+    environment:
+      <<: *common-env-vars
+      DD_SERVICE: inventory-service
+      SERVICE_PORT: ${INVENTORY_SERVICE_PORT:-8001}
+      # Using H2 in-memory database for simplicity
+      SPRING_PROFILES_ACTIVE: docker
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${INVENTORY_SERVICE_PORT:-8001}:8001"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/health"]
+    networks:
+      - hello-dd-network
+    restart: unless-stopped
 
   # Pricing Service (Go/Gin)
   # Uncomment when service is implemented
