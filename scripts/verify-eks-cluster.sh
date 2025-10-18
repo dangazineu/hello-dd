@@ -158,11 +158,16 @@ verify_pod() {
 cleanup() {
     print_step "Step 6/6: Cleaning Up Test Resources"
 
-    print_info "Deleting test pod..."
-    if kubectl delete pod $TEST_POD_NAME -n $TEST_NAMESPACE --wait=true; then
-        print_success "Test pod deleted successfully"
+    # Check if pod exists before trying to delete
+    if kubectl get pod $TEST_POD_NAME -n $TEST_NAMESPACE &> /dev/null; then
+        print_info "Deleting test pod..."
+        if kubectl delete pod $TEST_POD_NAME -n $TEST_NAMESPACE --wait=true; then
+            print_success "Test pod deleted successfully"
+        else
+            print_warning "Failed to delete test pod"
+        fi
     else
-        print_warning "Failed to delete test pod (it may not exist)"
+        print_info "Test pod already cleaned up or does not exist"
     fi
 }
 
