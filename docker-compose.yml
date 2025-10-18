@@ -54,29 +54,37 @@ services:
     restart: unless-stopped
 
   # API Gateway Service (Python/FastAPI)
-  # Uncomment when service is implemented
-  # api-gateway:
-  #   build:
-  #     context: ./api-gateway
-  #     dockerfile: Dockerfile
-  #   container_name: hello-dd-api-gateway
-  #   environment:
-  #     <<: *common-env-vars
-  #     DD_SERVICE: api-gateway
-  #     SERVICE_PORT: ${API_GATEWAY_PORT:-8000}
-  #     INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL:-http://inventory-service:8001}
-  #     PRICING_SERVICE_URL: ${PRICING_SERVICE_URL:-http://pricing-service:8002}
-  #   ports:
-  #     - "${API_GATEWAY_PORT:-8000}:8000"
-  #   depends_on:
-  #     - inventory-service
-  #     - pricing-service
-  #   healthcheck:
-  #     <<: *healthcheck-defaults
-  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-  #   networks:
-  #     - hello-dd-network
-  #   restart: unless-stopped
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: hello-dd-api-gateway
+    environment:
+      <<: *common-env-vars
+      DD_SERVICE: api-gateway
+      SERVICE_PORT: ${API_GATEWAY_PORT:-8000}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-inventory}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL:-http://inventory-service:8001}
+      PRICING_SERVICE_URL: ${PRICING_SERVICE_URL:-http://pricing-service:8002}
+    ports:
+      - "${API_GATEWAY_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health')"]
+    networks:
+      - hello-dd-network
+    restart: unless-stopped
 
   # Inventory Service (Java/Spring Boot)
   # Uncomment when service is implemented
