@@ -50,6 +50,34 @@ Cluster verification and health check script.
 
 ---
 
+### ECR Image Management (Issue #55)
+
+#### `push-to-ecr.sh`
+Automated Docker image build and ECR push script.
+
+**Usage:**
+```bash
+./scripts/push-to-ecr.sh
+```
+
+**What it does:**
+- Validates prerequisites (Docker, AWS CLI)
+- Creates ECR repositories for all services
+- Authenticates Docker to ECR
+- Builds Docker images for existing services
+- Tags images with `:latest` and `:commit-sha`
+- Pushes images to ECR
+- Verifies images are accessible
+
+**Prerequisites:**
+- Docker installed
+- AWS CLI configured with credentials
+- Sufficient AWS permissions for ECR
+
+**Time:** ~5-10 minutes (first run)
+
+---
+
 ### Database Initialization
 
 #### `init-db.sql`
@@ -72,18 +100,20 @@ For first-time setup, follow this sequence:
 1. **Read the documentation:**
    - Quick start: `docs/QUICK_START_EKS.md`
    - Full guide: `docs/EKS_SETUP_GUIDE.md`
+   - ECR setup: `docs/ECR_SETUP_GUIDE.md`
 
 2. **Install prerequisites:**
    - AWS CLI
    - eksctl
    - kubectl
+   - Docker
 
 3. **Configure AWS credentials:**
    ```bash
    aws configure
    ```
 
-4. **Create cluster:**
+4. **Create EKS cluster:**
    ```bash
    ./scripts/create-eks-cluster.sh
    ```
@@ -93,7 +123,12 @@ For first-time setup, follow this sequence:
    ./scripts/verify-eks-cluster.sh
    ```
 
-6. **Deploy services:**
+6. **Build and push Docker images:**
+   ```bash
+   ./scripts/push-to-ecr.sh
+   ```
+
+7. **Deploy services:**
    ```bash
    kubectl apply -f k8s/
    ```
