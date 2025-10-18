@@ -316,8 +316,15 @@ For deploying to AWS EKS, see the comprehensive setup guides:
 # 3. Build and push Docker images to ECR
 ./scripts/push-to-ecr.sh
 
-# 4. Deploy services (coming soon)
-kubectl apply -f k8s/
+# 4. Deploy services to EKS
+./scripts/deploy-to-eks.sh
+
+# Or manually:
+kubectl apply -f k8s/api-gateway.yaml
+
+# 5. Get LoadBalancer URL and test
+kubectl get service api-gateway
+# Then: curl http://<loadbalancer-url>/health
 ```
 
 **Prerequisites for EKS:**
